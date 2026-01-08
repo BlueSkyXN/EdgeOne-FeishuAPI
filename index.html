@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EdgeOne Feishu API - Docs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f2ea;
+        --bg-2: #eef4f1;
+        --panel: rgba(255, 255, 255, 0.86);
+        --ink: #131617;
+        --muted: #5c6665;
+        --accent: #0b7d6e;
+        --accent-2: #e16b1a;
+        --accent-3: #1f4b99;
+        --line: rgba(15, 18, 20, 0.1);
+        --shadow: 0 20px 60px rgba(16, 24, 24, 0.12);
+        --radius: 18px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "IBM Plex Sans", "Noto Sans SC", sans-serif;
+        color: var(--ink);
+        background: linear-gradient(135deg, var(--bg), var(--bg-2));
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        opacity: 0.75;
+      }
+
+      body::before {
+        background:
+          radial-gradient(circle at 12% 12%, rgba(11, 125, 110, 0.16), transparent 55%),
+          radial-gradient(circle at 82% 18%, rgba(225, 107, 26, 0.14), transparent 48%),
+          radial-gradient(circle at 70% 85%, rgba(31, 75, 153, 0.12), transparent 60%);
+      }
+
+      body::after {
+        background: repeating-linear-gradient(
+          120deg,
+          rgba(255, 255, 255, 0.5) 0,
+          rgba(255, 255, 255, 0.5) 1px,
+          transparent 1px,
+          transparent 24px
+        );
+        opacity: 0.35;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: blur(16px);
+        background: rgba(245, 242, 234, 0.75);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .topbar-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .brand-mark {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #0b7d6e, #0f9c81);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        box-shadow: 0 14px 30px rgba(11, 125, 110, 0.3);
+      }
+
+      .brand-title {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin-bottom: 2px;
+      }
+
+      .brand-sub {
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      .top-links {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .top-links a {
+        text-decoration: none;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        transition: all 0.2s ease;
+      }
+
+      .top-links a:hover {
+        border-color: var(--line);
+        background: rgba(255, 255, 255, 0.6);
+        color: var(--ink);
+      }
+
+      .layout {
+        max-width: 1200px;
+        margin: 24px auto 64px;
+        padding: 0 24px;
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr);
+        gap: 24px;
+        align-items: start;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 96px;
+        align-self: start;
+        background: var(--panel);
+        border-radius: var(--radius);
+        padding: 18px;
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow);
+        animation: floatIn 0.6s ease;
+      }
+
+      .search {
+        margin-bottom: 14px;
+      }
+
+      .search input {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.85);
+        font-size: 0.9rem;
+        font-family: "IBM Plex Sans", sans-serif;
+      }
+
+      .nav-group {
+        margin: 18px 0 8px;
+        font-size: 0.68rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .nav-item {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: 1px solid transparent;
+        text-decoration: none;
+        transition: all 0.2s ease;
+      }
+
+      .nav-item:hover {
+        border-color: rgba(11, 125, 110, 0.3);
+        background: rgba(11, 125, 110, 0.08);
+        transform: translateY(-1px);
+      }
+
+      .nav-item[aria-current="page"] {
+        background: #fff;
+        border-color: var(--accent);
+        box-shadow: 0 14px 32px rgba(11, 125, 110, 0.2);
+      }
+
+      .nav-label {
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+
+      .nav-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .method {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 0.62rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .method.get {
+        background: rgba(11, 125, 110, 0.16);
+        color: #0b7d6e;
+      }
+
+      .method.post {
+        background: rgba(225, 107, 26, 0.2);
+        color: #b04911;
+      }
+
+      .nav-path {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.73rem;
+        color: var(--muted);
+        word-break: break-word;
+      }
+
+      .nav-empty {
+        margin-top: 12px;
+        padding: 14px;
+        border-radius: 12px;
+        border: 1px dashed var(--line);
+        color: var(--muted);
+        font-size: 0.85rem;
+        text-align: center;
+      }
+
+      .sidebar-footer {
+        margin-top: 18px;
+        padding-top: 14px;
+        border-top: 1px dashed var(--line);
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+
+      .sidebar-footer code {
+        font-family: "JetBrains Mono", monospace;
+        padding: 0.05rem 0.3rem;
+        border-radius: 6px;
+        background: rgba(31, 41, 55, 0.08);
+        border: 1px solid rgba(31, 41, 55, 0.12);
+      }
+
+      .content {
+        background: var(--panel);
+        border-radius: var(--radius);
+        padding: 26px 32px 32px;
+        border: 1px solid var(--line);
+        box-shadow: var(--shadow);
+        animation: rise 0.7s ease;
+        min-height: 480px;
+      }
+
+      .doc-header {
+        display: grid;
+        gap: 12px;
+        padding-bottom: 18px;
+        border-bottom: 1px dashed var(--line);
+        margin-bottom: 24px;
+      }
+
+      .doc-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(31, 75, 153, 0.2);
+        background: rgba(31, 75, 153, 0.08);
+        color: #1f4b99;
+        font-size: 0.72rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        width: fit-content;
+      }
+
+      .doc-title {
+        margin: 0;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: clamp(1.7rem, 3vw, 2.4rem);
+        line-height: 1.2;
+      }
+
+      .doc-endpoint {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85rem;
+      }
+
+      .doc-endpoint code {
+        padding: 4px 8px;
+        border-radius: 10px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        background: rgba(255, 255, 255, 0.7);
+      }
+
+      .doc-lead {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+      }
+
+      .prose {
+        font-size: 1rem;
+        line-height: 1.7;
+      }
+
+      .prose h2,
+      .prose h3,
+      .prose h4 {
+        font-family: "Space Grotesk", sans-serif;
+        margin: 1.8rem 0 0.6rem;
+      }
+
+      .prose h2 {
+        font-size: 1.35rem;
+      }
+
+      .prose h3 {
+        font-size: 1.15rem;
+      }
+
+      .prose p {
+        margin: 0 0 1rem;
+        color: #22292c;
+      }
+
+      .prose ul {
+        padding-left: 1.2rem;
+        margin: 0 0 1rem;
+      }
+
+      .prose li {
+        margin-bottom: 0.4rem;
+      }
+
+      .prose code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85em;
+        padding: 0.1rem 0.35rem;
+        border-radius: 6px;
+        background: rgba(31, 41, 55, 0.08);
+        border: 1px solid rgba(31, 41, 55, 0.12);
+      }
+
+      .prose pre {
+        margin: 1.2rem 0;
+        padding: 18px;
+        border-radius: 14px;
+        background: #0f1f1b;
+        color: #e2f4ee;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        overflow-x: auto;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+      }
+
+      .prose pre code {
+        background: transparent;
+        border: none;
+        color: inherit;
+        padding: 0;
+        font-size: 0.85rem;
+      }
+
+      .loading,
+      .error {
+        padding: 18px;
+        border-radius: 14px;
+        font-size: 0.95rem;
+        border: 1px dashed var(--line);
+        background: rgba(255, 255, 255, 0.6);
+      }
+
+      .error {
+        color: #8b1f1f;
+        border-color: rgba(139, 31, 31, 0.3);
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes floatIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 960px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          position: static;
+        }
+
+        .topbar-inner {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="brand-mark">EO</div>
+          <div>
+            <div class="brand-title">EdgeOne Feishu API</div>
+            <div class="brand-sub">FastAPI-style Docs Navigator</div>
+          </div>
+        </div>
+        <div class="top-links">
+          <a href="docs/README.md">Raw Docs</a>
+          <a href="https://open.feishu.cn" target="_blank" rel="noreferrer">Feishu OpenAPI</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar">
+        <div class="search">
+          <input id="filter" type="search" placeholder="Filter endpoints" />
+        </div>
+        <nav id="nav"></nav>
+        <div class="sidebar-footer">
+          Keep this list in sync with <code>docs/apis</code>.
+        </div>
+      </aside>
+
+      <section class="content">
+        <div class="doc-header">
+          <div class="doc-chip" id="docBadge">Guide</div>
+          <h1 class="doc-title" id="docTitle">Loading...</h1>
+          <div class="doc-endpoint" id="docEndpoint"></div>
+          <p class="doc-lead" id="docLead"></p>
+        </div>
+        <article class="prose" id="docContent"></article>
+      </section>
+    </main>
+
+    <script>
+      const docs = [
+        {
+          id: "overview",
+          file: "docs/README.md",
+          label: "Overview",
+          group: "Guide",
+        },
+        {
+          id: "health",
+          file: "docs/apis/health.md",
+          label: "Health Check",
+          group: "Endpoints",
+          method: "GET",
+          path: "/health",
+        },
+        {
+          id: "bitable-batch-create",
+          file: "docs/apis/bitable-batch_create.md",
+          label: "Bitable batch_create",
+          group: "Endpoints",
+          method: "POST",
+          path: "/open-apis/bitable/apps/{app_token}/tables/{table_id}/records/batch_create",
+        },
+      ];
+
+      const docsById = new Map(docs.map((doc) => [doc.id, doc]));
+      const navEl = document.getElementById("nav");
+      const filterInput = document.getElementById("filter");
+      const docBadge = document.getElementById("docBadge");
+      const docTitle = document.getElementById("docTitle");
+      const docEndpoint = document.getElementById("docEndpoint");
+      const docLead = document.getElementById("docLead");
+      const docContent = document.getElementById("docContent");
+
+      const docCache = new Map();
+      let currentId = null;
+
+      function buildNav(items) {
+        navEl.innerHTML = "";
+        if (!items.length) {
+          const empty = document.createElement("div");
+          empty.className = "nav-empty";
+          empty.textContent = "No matches. Try a different keyword.";
+          navEl.appendChild(empty);
+          return;
+        }
+
+        const groups = items.reduce((acc, doc) => {
+          acc[doc.group] = acc[doc.group] || [];
+          acc[doc.group].push(doc);
+          return acc;
+        }, {});
+
+        Object.keys(groups).forEach((group) => {
+          const groupEl = document.createElement("div");
+          groupEl.className = "nav-group";
+          groupEl.textContent = group;
+          navEl.appendChild(groupEl);
+
+          groups[group].forEach((doc) => {
+            const item = document.createElement("a");
+            item.className = "nav-item";
+            item.href = `#${doc.id}`;
+            item.dataset.id = doc.id;
+
+            const label = document.createElement("div");
+            label.className = "nav-label";
+            label.textContent = doc.label;
+
+            item.appendChild(label);
+
+            if (doc.method && doc.path) {
+              const row = document.createElement("div");
+              row.className = "nav-row";
+
+              const badge = document.createElement("span");
+              badge.className = `method ${doc.method.toLowerCase()}`;
+              badge.textContent = doc.method;
+
+              const path = document.createElement("span");
+              path.className = "nav-path";
+              path.textContent = doc.path;
+
+              row.appendChild(badge);
+              row.appendChild(path);
+              item.appendChild(row);
+            }
+
+            item.addEventListener("click", (event) => {
+              event.preventDefault();
+              setHash(doc.id);
+            });
+
+            navEl.appendChild(item);
+          });
+        });
+
+        updateActiveNav();
+      }
+
+      function setHash(id) {
+        if (location.hash.slice(1) !== id) {
+          location.hash = id;
+          return;
+        }
+        selectDoc(id);
+      }
+
+      function updateActiveNav() {
+        navEl.querySelectorAll(".nav-item").forEach((item) => {
+          if (item.dataset.id === currentId) {
+            item.setAttribute("aria-current", "page");
+          } else {
+            item.removeAttribute("aria-current");
+          }
+        });
+      }
+
+      function selectDoc(id) {
+        const doc = docsById.get(id) || docs[0];
+        currentId = doc.id;
+        updateActiveNav();
+        loadDoc(doc);
+      }
+
+      function extractEndpoint(text) {
+        const match = text.match(
+          /^(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD)\s+([^\s]+)\s*$/m,
+        );
+        if (!match) return null;
+        return { method: match[1], path: match[2] };
+      }
+
+      function renderMarkdown(source) {
+        const lines = source.replace(/\r\n?/g, "\n").split("\n");
+        const html = [];
+        let title = "";
+        let lead = "";
+        let inCode = false;
+        let codeLang = "";
+        let codeBuffer = [];
+        let listOpen = false;
+        let paragraph = [];
+
+        function flushParagraph() {
+          if (!paragraph.length) return;
+          const text = paragraph.join(" ").trim();
+          if (!lead) lead = text;
+          html.push(`<p>${inlineFormat(text)}</p>`);
+          paragraph = [];
+        }
+
+        function closeList() {
+          if (!listOpen) return;
+          html.push("</ul>");
+          listOpen = false;
+        }
+
+        lines.forEach((line) => {
+          const trimmed = line.trim();
+
+          if (inCode) {
+            if (trimmed.startsWith("```")) {
+              const languageClass = codeLang
+                ? ` class="language-${escapeAttr(codeLang)}"`
+                : "";
+              html.push(
+                `<pre><code${languageClass}>${escapeHtml(
+                  codeBuffer.join("\n"),
+                )}</code></pre>`,
+              );
+              inCode = false;
+              codeLang = "";
+              codeBuffer = [];
+            } else {
+              codeBuffer.push(line);
+            }
+            return;
+          }
+
+          if (trimmed.startsWith("```")) {
+            flushParagraph();
+            closeList();
+            inCode = true;
+            codeLang = trimmed.slice(3).trim();
+            return;
+          }
+
+          const headingMatch = line.match(/^(#{1,6})\s+(.*)$/);
+          if (headingMatch) {
+            flushParagraph();
+            closeList();
+            const level = headingMatch[1].length;
+            const text = headingMatch[2].trim();
+            if (level === 1 && !title) {
+              title = text;
+            } else {
+              html.push(`<h${level}>${inlineFormat(text)}</h${level}>`);
+            }
+            return;
+          }
+
+          const listMatch = line.match(/^\s*[-*]\s+(.*)$/);
+          if (listMatch) {
+            flushParagraph();
+            if (!listOpen) {
+              html.push("<ul>");
+              listOpen = true;
+            }
+            html.push(`<li>${inlineFormat(listMatch[1].trim())}</li>`);
+            return;
+          }
+
+          if (trimmed === "") {
+            flushParagraph();
+            closeList();
+            return;
+          }
+
+          paragraph.push(trimmed);
+        });
+
+        if (inCode) {
+          html.push(
+            `<pre><code>${escapeHtml(codeBuffer.join("\n"))}</code></pre>`,
+          );
+        }
+        flushParagraph();
+        closeList();
+
+        return { html: html.join("\n"), title, lead };
+      }
+
+      function inlineFormat(text) {
+        const regex = /`([^`]+)`/g;
+        let lastIndex = 0;
+        let result = "";
+        let match;
+
+        while ((match = regex.exec(text)) !== null) {
+          result += escapeHtml(text.slice(lastIndex, match.index));
+          result += `<code>${escapeHtml(match[1])}</code>`;
+          lastIndex = regex.lastIndex;
+        }
+
+        result += escapeHtml(text.slice(lastIndex));
+        return result;
+      }
+
+      function escapeHtml(text) {
+        return text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function escapeAttr(text) {
+        return text.replace(/"/g, "").replace(/'/g, "");
+      }
+
+      function setDocHeader(doc, parsed, endpoint) {
+        docBadge.textContent = doc.group || "Docs";
+        docTitle.textContent = parsed.title || doc.label || "Documentation";
+        docLead.textContent = parsed.lead || "";
+        docEndpoint.innerHTML = "";
+
+        const method = endpoint?.method || doc.method;
+        const path = endpoint?.path || doc.path;
+
+        if (method && path) {
+          const badge = document.createElement("span");
+          badge.className = `method ${method.toLowerCase()}`;
+          badge.textContent = method;
+          const pathEl = document.createElement("code");
+          pathEl.textContent = path;
+          docEndpoint.appendChild(badge);
+          docEndpoint.appendChild(pathEl);
+        }
+      }
+
+      async function loadDoc(doc) {
+        docContent.innerHTML = '<div class="loading">Loading docs...</div>';
+
+        if (docCache.has(doc.id)) {
+          const cached = docCache.get(doc.id);
+          setDocHeader(doc, cached.parsed, cached.endpoint);
+          docContent.innerHTML = cached.parsed.html;
+          document.title = `EdgeOne Feishu API - ${docTitle.textContent}`;
+          return;
+        }
+
+        try {
+          const response = await fetch(doc.file);
+          if (!response.ok) {
+            throw new Error(`Fetch failed: ${response.status}`);
+          }
+          const text = await response.text();
+          const parsed = renderMarkdown(text);
+          const endpoint = extractEndpoint(text);
+          docCache.set(doc.id, { parsed, endpoint });
+          setDocHeader(doc, parsed, endpoint);
+          docContent.innerHTML = parsed.html;
+          document.title = `EdgeOne Feishu API - ${docTitle.textContent}`;
+        } catch (error) {
+          docContent.innerHTML =
+            '<div class="error">Unable to load documentation. Check that the file is deployed.</div>';
+          docLead.textContent = "";
+          docEndpoint.innerHTML = "";
+        }
+      }
+
+      function handleHashChange() {
+        const id = location.hash.slice(1);
+        if (id && docsById.has(id)) {
+          selectDoc(id);
+        } else {
+          selectDoc(docs[0].id);
+        }
+      }
+
+      filterInput.addEventListener("input", (event) => {
+        const term = event.target.value.trim().toLowerCase();
+        if (!term) {
+          buildNav(docs);
+          return;
+        }
+        const filtered = docs.filter((doc) => {
+          return (
+            doc.label.toLowerCase().includes(term) ||
+            (doc.path && doc.path.toLowerCase().includes(term))
+          );
+        });
+        buildNav(filtered);
+      });
+
+      window.addEventListener("hashchange", handleHashChange);
+
+      buildNav(docs);
+      handleHashChange();
+    </script>
+  </body>
+</html>
