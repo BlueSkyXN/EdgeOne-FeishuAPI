@@ -7,7 +7,7 @@
 ## 目标与范围
 
 - 仅支持自建应用的 `tenant_access_token`。
-- 当前实现：多维表单行新增（代理 `batch_create`，但限制单条）。
+- 当前实现：健康检查、多维表单行新增（代理 `batch_create`，但限制单条）。
 - 通过 `API_AUTH_TOKEN` 进行接口鉴权。
 
 ## 统一约定

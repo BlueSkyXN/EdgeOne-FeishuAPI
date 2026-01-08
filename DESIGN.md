@@ -37,6 +37,24 @@ EdgeOne 作为飞书 OpenAPI 的代理中转层，内部使用自建应用的凭
 
 ## 接口
 
+### 健康检查
+
+#### GET /health
+
+说明：验证可否获取 `tenant_access_token`（必要时刷新），不返回 token 本身。
+
+成功响应：
+
+```json
+{
+  "request_id": "req_123",
+  "data": {
+    "status": "ok",
+    "token_expires_in": 7200
+  }
+}
+```
+
 ### 单行新增记录
 
 #### POST /open-apis/bitable/apps/{app_token}/tables/{table_id}/records/batch_create
@@ -110,6 +128,7 @@ EdgeOne 作为飞书 OpenAPI 的代理中转层，内部使用自建应用的凭
 - 获取 tenant_access_token：
   - `POST /open-apis/auth/v3/tenant_access_token/internal`
   - Body：`{ "app_id": "...", "app_secret": "..." }`
+  - 用途：健康检查、单行新增记录
 
 - 新增记录（批量接口）：
   - `POST /open-apis/bitable/v1/apps/:app_token/tables/:table_id/records/batch_create`
