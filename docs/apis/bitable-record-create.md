@@ -1,14 +1,14 @@
-# 多维表单记录新增（batch_create）
+# 多维表单记录新增（records）
 
 ## 接口
 
-POST /open-apis/bitable/apps/{app_token}/tables/{table_id}/records/batch_create
+POST /open-apis/bitable/apps/{app_token}/tables/{table_id}/records
 
 说明：
 
-- 代理飞书 `batch_create` 接口，请求与响应保持一致，仅替换鉴权 token。
+- 代理飞书“新增记录”接口，请求与响应保持一致，仅替换鉴权 token。
 - 路径不含 `v1`，其余保持飞书风格。
-- 单条记录请使用 `POST /open-apis/bitable/apps/{app_token}/tables/{table_id}/records`。
+- 批量新增请使用 `POST /open-apis/bitable/apps/{app_token}/tables/{table_id}/records/batch_create`。
 
 ## 路径参数
 
@@ -27,22 +27,17 @@ POST /open-apis/bitable/apps/{app_token}/tables/{table_id}/records/batch_create
 
 ```json
 {
-  "records": [
-    {
-      "fields": {
-        "文本": "Hello",
-        "数字": 100,
-        "日期": 1674206443000
-      }
-    }
-  ]
+  "fields": {
+    "文本": "Hello",
+    "数字": 100,
+    "日期": 1674206443000
+  }
 }
 ```
 
 内容格式定义：
 
-- `records`：数组，长度 1~1000。
-- `records[0].fields`：map，key 为字段名，value 结构与飞书字段类型一致。
+- `fields`：map，key 为字段名，value 结构与飞书字段类型一致。
 
 ## 成功响应
 
@@ -50,11 +45,15 @@ POST /open-apis/bitable/apps/{app_token}/tables/{table_id}/records/batch_create
 {
   "code": 0,
   "data": {
-    "records": [
-      {
-        "record_id": "recusyQbB0fVL5"
-      }
-    ]
+    "record": {
+      "fields": {
+        "任务名称": "维护客户关系",
+        "创建日期": 1674206443000,
+        "截止日期": 1674206443000
+      },
+      "id": "recusutYZm4ulo",
+      "record_id": "recusutYZm4ulo"
+    }
   },
   "msg": "success"
 }
@@ -75,16 +74,12 @@ POST /open-apis/bitable/apps/{app_token}/tables/{table_id}/records/batch_create
 
 ```bash
 curl -X POST \
-  "https://<your-domain>/open-apis/bitable/apps/appbcbWCzen6D8dezhoCH2RpMAh/tables/tblsRc9GRRXKqhvW/records/batch_create?user_id_type=open_id" \
+  "https://<your-domain>/open-apis/bitable/apps/appbcbWCzen6D8dezhoCH2RpMAh/tables/tblsRc9GRRXKqhvW/records?user_id_type=open_id" \
   -H "Authorization: Bearer <API_AUTH_TOKEN>" \
   -H "Content-Type: application/json; charset=utf-8" \
   -d '{
-    "records": [
-      {
-        "fields": {
-          "文本": "Hello"
-        }
-      }
-    ]
+    "fields": {
+      "文本": "Hello"
+    }
   }'
 ```

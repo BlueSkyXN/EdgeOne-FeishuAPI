@@ -48,10 +48,6 @@ export function getAuthToken(headers) {
     const match = authHeader.match(/^Bearer\s+(.+)$/i)
     if (match && match[1]) return match[1].trim()
   }
-  const apiToken = headers.get('X-Api-Token')
-  if (apiToken) return apiToken.trim()
-  const apiKey = headers.get('X-Api-Key')
-  if (apiKey) return apiKey.trim()
   return ''
 }
 

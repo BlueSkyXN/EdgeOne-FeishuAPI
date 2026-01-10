@@ -5,7 +5,7 @@
 EdgeOne 作为飞书 OpenAPI 的代理中转层，内部使用自建应用的凭证访问飞书，
 对外暴露与飞书路径风格一致的接口，便于其他程序接入。
 
-当前仅实现：多维表单行新增（代理 `batch_create`，但限制单条）。
+当前仅实现：多维表单记录新增（records、batch_create）。
 
 ## 路由与命名
 
@@ -17,8 +17,6 @@ EdgeOne 作为飞书 OpenAPI 的代理中转层，内部使用自建应用的凭
 必须通过环境变量 `API_AUTH_TOKEN` 进行鉴权，支持任一方式：
 
 - `Authorization: Bearer <token>`
-- `X-Api-Token: <token>`
-- `X-Api-Key: <token>`
 
 鉴权规则：
 
@@ -33,7 +31,7 @@ EdgeOne 作为飞书 OpenAPI 的代理中转层，内部使用自建应用的凭
 - `FEISHU_BASE_URL`（可选，默认 `https://open.feishu.cn`）
 - `DEFAULT_USER_ID_TYPE`（可选，默认 `open_id`）
 
-说明：目前不使用 KV；token 缓存仅保存在内存实例中。
+说明：目前不使用 KV；token 缓存仅保存在内存实例中；代理不再覆盖 `user_id_type` 默认值。
 
 ## 接口
 
@@ -55,11 +53,49 @@ EdgeOne 作为飞书 OpenAPI 的代理中转层，内部使用自建应用的凭
 }
 ```
 
-### 单行新增记录
+### 新增记录（records）
+
+#### POST /open-apis/bitable/apps/{app_token}/tables/{table_id}/records
+
+说明：保持飞书原路径，请求与响应保持一致，仅替换鉴权 token。
+
+路径参数：
+
+- `app_token`：多维表 App 的唯一标识
+- `table_id`：数据表唯一标识
+
+查询参数（同飞书）：
+
+- `user_id_type`：用户 ID 类型（`open_id` / `union_id` / `user_id`）
+- `client_token`：幂等键（uuidv4）
+- `ignore_consistency_check`：是否忽略一致性检查（`true` / `false`）
+
+请求体：
+
+```json
+{
+  "fields": {
+    "文本": "Hello",
+    "数字": 100,
+    "日期": 1674206443000
+  }
+}
+```
+
+内容格式定义：
+
+- `fields`：map，key 为多维表字段名，value 结构与飞书字段类型一致。
+
+响应说明：
+
+- 飞书侧响应原样透传（`code/msg/data` 结构与 HTTP 状态码保持一致）。
+- 网关仅追加 CORS 与 `X-Request-Id` 响应头。
+
+### 新增记录（batch_create）
 
 #### POST /open-apis/bitable/apps/{app_token}/tables/{table_id}/records/batch_create
 
-说明：保持飞书原路径，仅支持单条记录写入（`records` 长度必须为 1）。
+说明：保持飞书原路径，请求与响应保持一致，仅替换鉴权 token。
 
 路径参数：
 
@@ -90,47 +126,27 @@ EdgeOne 作为飞书 OpenAPI 的代理中转层，内部使用自建应用的凭
 
 内容格式定义：
 
-- `records`：数组，长度必须为 1。
+- `records`：数组，长度 1~1000。
 - `records[0].fields`：map，key 为多维表字段名，value 结构与飞书字段类型一致。
 
-成功响应：
+响应说明：
 
-```json
-{
-  "request_id": "req_123",
-  "data": {
-    "records": [
-      {
-        "record_id": "recusyQbB0fVL5"
-      }
-    ]
-  }
-}
-```
-
-错误响应（统一结构）：
-
-```json
-{
-  "request_id": "req_123",
-  "error": {
-    "code": "invalid_request",
-    "message": "Only one record is supported",
-    "details": {
-      "field": "records"
-    }
-  }
-}
-```
+- 飞书侧响应原样透传（`code/msg/data` 结构与 HTTP 状态码保持一致）。
+- 网关仅追加 CORS 与 `X-Request-Id` 响应头。
 
 ## 上游映射（飞书）
 
 - 获取 tenant_access_token：
   - `POST /open-apis/auth/v3/tenant_access_token/internal`
   - Body：`{ "app_id": "...", "app_secret": "..." }`
-  - 用途：健康检查、单行新增记录
+  - 用途：健康检查、记录新增
 
 - 新增记录（批量接口）：
   - `POST /open-apis/bitable/v1/apps/:app_token/tables/:table_id/records/batch_create`
   - Query：`user_id_type`、`client_token`、`ignore_consistency_check`
   - Body：`{ "records": [ ... ] }`
+
+- 新增记录（单条接口）：
+  - `POST /open-apis/bitable/v1/apps/:app_token/tables/:table_id/records`
+  - Query：`user_id_type`、`client_token`、`ignore_consistency_check`
+  - Body：`{ "fields": { ... } }`

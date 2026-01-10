@@ -7,7 +7,7 @@
 ## 目标与范围
 
 - 仅支持自建应用的 `tenant_access_token`。
-- 当前实现：健康检查、多维表单行新增（代理 `batch_create`，但限制单条）。
+- 当前实现：健康检查、多维表单记录新增（records、batch_create）。
 - 通过 `API_AUTH_TOKEN` 进行接口鉴权。
 
 ## 统一约定
@@ -16,16 +16,16 @@
 
 接口路径尽量贴近飞书原路径，但本代理移除了 `v1` 前缀：
 
-- 代理入口：`/open-apis/bitable/apps/{app_token}/tables/{table_id}/records/batch_create`
+- 代理入口（批量）：`/open-apis/bitable/apps/{app_token}/tables/{table_id}/records/batch_create`
+- 代理入口（单条）：`/open-apis/bitable/apps/{app_token}/tables/{table_id}/records`
 - 上游飞书：`/open-apis/bitable/v1/apps/{app_token}/tables/{table_id}/records/batch_create`
+- 上游飞书：`/open-apis/bitable/v1/apps/{app_token}/tables/{table_id}/records`
 
 ### 认证
 
-必须设置环境变量 `API_AUTH_TOKEN`，请求时使用以下任一方式：
+必须设置环境变量 `API_AUTH_TOKEN`，请求时使用：
 
 - `Authorization: Bearer <token>`
-- `X-Api-Token: <token>`
-- `X-Api-Key: <token>`
 
 ### 环境变量
 
@@ -35,30 +35,20 @@
 - `FEISHU_BASE_URL`（可选，默认 `https://open.feishu.cn`）
 - `DEFAULT_USER_ID_TYPE`（可选，默认 `open_id`）
 
-说明：当前不使用 KV；token 仅在实例内存中缓存。
+说明：当前不使用 KV；token 仅在实例内存中缓存；代理不再覆盖 `user_id_type` 默认值。
 
 ### 响应格式
 
-成功响应：
+飞书代理接口的响应体/状态码原样透传，仅追加 CORS 与 `X-Request-Id` 响应头。
+
+健康检查接口保持自定义结构：
 
 ```json
 {
   "request_id": "req_123",
-  "data": { }
-}
-```
-
-错误响应：
-
-```json
-{
-  "request_id": "req_123",
-  "error": {
-    "code": "invalid_request",
-    "message": "Only one record is supported",
-    "details": {
-      "field": "records"
-    }
+  "data": {
+    "status": "ok",
+    "token_expires_in": 7200
   }
 }
 ```

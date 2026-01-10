@@ -11,7 +11,8 @@
 每个接口一份文档，放在 `docs/apis/`。
 
 - `docs/apis/health.md`：健康检查（获取 tenant_access_token 以验证可用性）。
-- `docs/apis/bitable-batch_create.md`：多维表单行新增（代理 batch_create）。
+- `docs/apis/bitable-batch_create.md`：多维表单记录新增（批量 batch_create）。
+- `docs/apis/bitable-record-create.md`：多维表单记录新增（单条 records）。
 
 ## EdgeOne 文档
 

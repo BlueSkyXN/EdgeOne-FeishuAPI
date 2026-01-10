@@ -38,7 +38,7 @@ export async function onRequestPost({ request, params, env }) {
     )
     const feishuUrl =
       `${feishuBaseUrl}/open-apis/bitable/v1/apps/${appToken}` +
-      `/tables/${tableId}/records/batch_create${url.search}`
+      `/tables/${tableId}/records${url.search}`
 
     const tenantAccessToken = await getTenantAccessToken(env)
     const upstreamHeaders = buildUpstreamHeaders(request.headers, tenantAccessToken)
