@@ -13,6 +13,11 @@
 - `docs/apis/health.md`：健康检查（获取 tenant_access_token 以验证可用性）。
 - `docs/apis/bitable-batch_create.md`：多维表单行新增（代理 batch_create）。
 
+## EdgeOne 文档
+
+- `docs/edgeone-docs/Edge_Functions.md`：Edge Functions 文档。
+- `docs/edgeone-docs/Page_Functions_Overview.md`：Page Functions 概览。
+
 ## 约定
 
 - 新增接口时：在 `docs/apis/` 增加对应文档，并更新本导航。

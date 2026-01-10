@@ -63,6 +63,11 @@
 }
 ```
 
+## EdgeOne 文档
+
+- `docs/edgeone-docs/Edge_Functions.md`：Edge Functions 文档。
+- `docs/edgeone-docs/Page_Functions_Overview.md`：Page Functions 概览。
+
 ## 文档导航
 
 详见 `docs/STRUCTURE.md`。

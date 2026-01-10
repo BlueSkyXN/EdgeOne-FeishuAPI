@@ -485,7 +485,7 @@
         </div>
         <nav id="nav"></nav>
         <div class="sidebar-footer">
-          Keep this list in sync with <code>docs/apis</code>.
+          Keep this list in sync with <code>docs/apis</code> and <code>docs/edgeone-docs</code>.
         </div>
       </aside>
 
@@ -507,6 +507,18 @@
           file: "docs/README.md",
           label: "Overview",
           group: "Guide",
+        },
+        {
+          id: "edgeone-edge-functions",
+          file: "docs/edgeone-docs/Edge_Functions.md",
+          label: "Edge Functions",
+          group: "EdgeOne Docs",
+        },
+        {
+          id: "edgeone-page-functions",
+          file: "docs/edgeone-docs/Page_Functions_Overview.md",
+          label: "Page Functions 概览",
+          group: "EdgeOne Docs",
         },
         {
           id: "health",
@@ -795,7 +807,7 @@
         }
 
         try {
-          const response = await fetch(doc.file);
+          const response = await fetch(encodeURI(doc.file));
           if (!response.ok) {
             throw new Error(`Fetch failed: ${response.status}`);
           }
